@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #42526E;
+      background-color: ##fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0px;
+    }
+    h1 {
+      margin: 20px 0;
+    }
+    .chart-container {
+      display: flex;
+      justify-content: center;
+      height:60vh;
+      width:80vw;
+    }
+    #moduleSelection {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      gap: 16px;
+    }
+    #moduleSelection label {
+      font-size: 20px;
+      padding: 10px 20px;
+      border: 1px solid #42526E;
+      border-radius: 16px;
+      cursor: pointer;
+      background-color: white;
+      transition: all 0.3s;
+    }
+    #moduleSelection label:hover {
+      background-color: #FE5019;
+      color: white;
+      border-color: #FE5019;
+    }
+    #moduleSelection label.active {
+      background-color: #FE5019;
+      color: white;
+      border-color: #FE5019;
+    }
+    #moduleSelection input[type="checkbox"] {
+      display: none;
+    }
+    #price {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    #myChart {
+     padding: 32px;
+      border: 1px solid #42526E;  /* Adjust to the color you want for the border */
+      border-radius: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Our Modules</h1>
+​
+  <div class="chart-container">
+    <canvas id="myChart"></canvas>
+  </div>
+  
+  <div id="moduleSelection">
+    <label><input type="checkbox" name="module" value="AppHQ"> AppHQ</label>
+    <label><input type="checkbox" name="module" value="AppStore"> AppStore</label>
+    <label><input type="checkbox" name="module" value="AppStore Pro"> AppStore Pro</label>
+    <label><input type="checkbox" name="module" value="Access Reviews"> Access Reviews</label>
+    <label><input type="checkbox" name="module" value="SaaS Management"> SaaS Management</label>
+    <label><input type="checkbox" name="module" value="Employee Lifecycle"> Employee Lifecycle</label>
+  </div>
+​
+  <div id="price"></div>
+​
+  <script>
+    // Define the data
+    const modules = {
+      'AppHQ': {stats: [4, 2, 4, 2], price: 1},
+      'AppStore': {stats: [1, 1, 0, 2], price: 3},
+      'AppStore Pro': {stats: [0, 1, 1, 2], price: 1},
+      'Access Reviews': {stats: [1, 2, 1, 0], price: 2},
+      'SaaS Management': {stats: [2, 1, 1, 0], price: 3},
+      'Employee Lifecycle': {stats: [0, 1, 1, 2], price: 1}
+    };
+​
+    let sums = [0, 0, 0, 0];
+    let totalPrice = 0;
+​
+  const chart = new Chart(document.getElementById('myChart'), {
+  type: 'radar',
+  data: {
+    labels: ['Savings', 'Compliance', 'Security', 'Automation'],
+    datasets: [{
+      label: 'Module Strength',
+      data: sums,
+      backgroundColor: 'rgba(254, 80, 25, 0.2)',
+      borderColor: '#FE5019',
+      borderWidth: 2
+    }]
+  },
+  options: {
+    scales: {
+      r: {
+        suggestedMin: 0,
+        suggestedMax: 8,
+        ticks: {
+          display: false
+        },
+        angleLines: {
+          color: '#42526E'
+        },
+        grid: {
+          color: '#42526E'
+        },
+        pointLabels: {
+          color: '#42526E',
+          font: {
+            size: 16,  // change this value for larger or smaller text
+          }
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const labelIndex = context.dataIndex;
+            const datasetLabel = context.dataset.label;
+            const value = context.parsed.r;
+            const percentage = (value / 8) * 100;
+            return `${datasetLabel}: ${percentage.toFixed(0)}%`;
+          }
+        }
+      }
+    }
+  }
+});
+​
+    document.getElementById('moduleSelection').addEventListener('change', function(e) {
+      const module = modules[e.target.value];
+      if (e.target.checked) {
+        e.target.parentNode.classList.add('active');
+        sums = sums.map((sum, index) => sum + module.stats[index]);
+        totalPrice += module.price;
+      } else {
+        e.target.parentNode.classList.remove('active');
+        sums = sums.map((sum, index) => sum - module.stats[index]);
+        totalPrice -= module.price;
+      }
+​
+      document.getElementById('price').innerText = `$${totalPrice} per user/month`;
+​
+      chart.data.datasets[0].data = sums;
+      chart.update({duration: 0});
+    });
+​
+  </script>
+</body>
+</html>
